@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -6,12 +7,15 @@ import {
   MapPin,
   Calendar,
   Clock,
-  Tag,
   Building,
   Search,
   FileText,
+  ChevronDown,
+  CheckCircle,
+  X
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AllPost = () => {
   const [posts, setPosts] = useState([]);
@@ -19,6 +23,7 @@ const AllPost = () => {
   const [cvFiles, setCvFiles] = useState({}); // Track uploaded CVs per post
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedPost, setExpandedPost] = useState(null);
+  const [sortBy, setSortBy] = useState("latest");
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -35,6 +40,12 @@ const AllPost = () => {
         setPosts(response.data.data.posts);
       } catch (error) {
         console.error("Failed to fetch posts:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Connection Error",
+          text: "Failed to load training opportunities. Please try again later.",
+          confirmButtonColor: "#dc2626",
+        });
       } finally {
         setLoading(false);
       }
@@ -66,6 +77,7 @@ const AllPost = () => {
     formData.append("cv", file);
 
     try {
+      setLoading(true);
       const token = localStorage.getItem("token");
       const res = await axios.post(
         `https://railway-system-production-1a43.up.railway.app/api/students/posts/${postId}/apply`,
@@ -83,6 +95,9 @@ const AllPost = () => {
         title: "Applied Successfully",
         text: res.data.message || "Your application was submitted.",
         confirmButtonColor: "#dc2626",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
       });
 
       // Optionally clear file input
@@ -94,6 +109,8 @@ const AllPost = () => {
         text: error.response?.data?.message || error.message,
         confirmButtonColor: "#dc2626",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,22 +118,50 @@ const AllPost = () => {
     setExpandedPost(expandedPost === postId ? null : postId);
   };
 
-  const filteredPosts = posts.filter(
+  const sortPosts = (posts) => {
+    if (sortBy === "latest") {
+      return [...posts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortBy === "duration-asc") {
+      return [...posts].sort((a, b) => a.duration - b.duration);
+    } else if (sortBy === "duration-desc") {
+      return [...posts].sort((a, b) => b.duration - a.duration);
+    }
+    return posts;
+  };
+
+  const filteredPosts = sortPosts(posts.filter(
     (post) =>
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ));
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600 mb-4"></div>
-          <div className="text-red-600 font-semibold text-lg">
-            Loading opportunities...
+        <motion.div 
+          className="flex flex-col items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="relative w-20 h-20">
+            <motion.div 
+              className="absolute top-0 left-0 right-0 bottom-0 border-4 border-red-600 rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+              style={{ borderTopColor: 'transparent' }}
+            />
           </div>
-        </div>
+          <motion.div 
+            className="text-red-600 font-semibold text-lg mt-4"
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            Loading opportunities...
+          </motion.div>
+        </motion.div>
       </div>
     );
   }
@@ -124,70 +169,147 @@ const AllPost = () => {
   return (
     <div className="max-w-5xl mx-auto my-10 px-4">
       {/* Header */}
-      <div className="text-center mb-10">
+      <motion.div 
+        className="text-center mb-10"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="inline-flex items-center justify-center p-3 bg-red-100 rounded-full mb-4">
-          <Briefcase className="text-red-600" size={28} />
+          <motion.div
+            animate={{ 
+              scale: [1, 1.1, 1],
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity, 
+              repeatType: "reverse"
+            }}
+          >
+            <Briefcase className="text-red-600" size={28} />
+          </motion.div>
         </div>
-        <h2 className="text-3xl font-bold text-gray-800">
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">
           Available Training Opportunities
         </h2>
-        <p className="text-gray-500 mt-2 max-w-2xl mx-auto">
+        <p className="text-gray-500 max-w-2xl mx-auto">
           Discover and apply for career-advancing training positions from our
           network of approved industry partners
         </p>
-      </div>
+      </motion.div>
 
-      {/* Search Bar */}
-      <div className="relative mb-8">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
+      {/* Search Bar and Sort */}
+      <motion.div 
+        className="mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <div className="relative flex-grow">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300"
+              placeholder="Search by title, company or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button 
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-600"
+                onClick={() => setSearchTerm("")}
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
+          
+          <div className="flex items-center whitespace-nowrap">
+            <span className="text-sm text-gray-500 mr-2">Sort by:</span>
+            <select 
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-red-500"
+            >
+              <option value="latest">Latest</option>
+              <option value="duration-asc">Duration (Low to High)</option>
+              <option value="duration-desc">Duration (High to Low)</option>
+            </select>
+          </div>
         </div>
-        <input
-          type="text"
-          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-          placeholder="Search by title, company or location..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      </motion.div>
+
+      {/* Results Summary */}
+      <motion.div 
+        className="mb-4 text-sm text-gray-600"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+      >
+        Showing {filteredPosts.length} opportunities
+      </motion.div>
 
       {/* Posts List */}
       {filteredPosts.length === 0 ? (
-        <div className="text-center py-10 bg-gray-50 rounded-lg border border-gray-200">
-          <Briefcase className="mx-auto text-gray-400 mb-3" size={32} />
-          <p className="text-gray-500 text-lg">
-            No training positions match your search.
+        <motion.div 
+          className="text-center py-16 bg-gray-50 rounded-lg border border-gray-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Briefcase className="mx-auto text-gray-400 mb-3" size={40} />
+          <p className="text-gray-500 text-lg font-medium mb-2">
+            No training positions match your search
           </p>
-          <button
+          <p className="text-gray-400 mb-4">Try adjusting your search criteria</p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setSearchTerm("")}
-            className="mt-3 text-red-600 hover:text-red-800 font-medium"
+            className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
           >
             Clear search
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1">
-          {filteredPosts.map((post) => (
-            <div
+        <div className="grid gap-6">
+          {filteredPosts.map((post, index) => (
+            <motion.div
               key={post._id}
-              className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.4, 
+                delay: 0.1 * (index % 10) // Stagger the animations
+              }}
+              className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-red-200 hover:shadow-md transition-all duration-300"
             >
               {/* Post Header */}
               <div
-                className="p-6 cursor-pointer"
+                className="p-6 cursor-pointer transition-colors duration-300 hover:bg-gray-50"
                 onClick={() => togglePostExpansion(post._id)}
               >
                 <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">
-                      {post.title}
-                    </h3>
-                    <div className="flex items-center text-gray-600 mb-3">
-                      <Building className="w-4 h-4 mr-1" />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-xl font-bold text-gray-800 hover:text-red-600 transition-colors">
+                        {post.title}
+                      </h3>
+                      <motion.div
+                        animate={{ rotate: expandedPost === post._id ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChevronDown className="w-5 h-5 text-gray-500" />
+                      </motion.div>
+                    </div>
+                    <div className="flex items-center text-gray-600 mb-4">
+                      <Building className="w-4 h-4 mr-2 text-red-500" />
                       <span className="font-medium">{post.company.name}</span>
-                      <span className="mx-2">•</span>
-                      <Tag className="w-4 h-4 mr-1" />
-                      <span>{post.company.fieldOfWork}</span>
+                      <span className="mx-2 text-gray-300">•</span>
+                      <span className="text-gray-500">{post.company.fieldOfWork}</span>
                     </div>
                   </div>
                 </div>
@@ -195,15 +317,15 @@ const AllPost = () => {
                 {/* Post Meta Info */}
                 <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-600">
                   <div className="flex items-center">
-                    <MapPin className="w-4 h-4 mr-1" />
+                    <MapPin className="w-4 h-4 mr-1 text-red-500" />
                     <span>{post.location}</span>
                   </div>
                   <div className="flex items-center">
-                    <Clock className="w-4 h-4 mr-1" />
+                    <Clock className="w-4 h-4 mr-1 text-blue-500" />
                     <span>{post.duration} months</span>
                   </div>
                   <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-1" />
+                    <Calendar className="w-4 h-4 mr-1 text-green-500" />
                     <span>
                       Until {new Date(post.availableUntil).toLocaleDateString()}
                     </span>
@@ -212,68 +334,87 @@ const AllPost = () => {
               </div>
 
               {/* Expanded Content */}
-              {expandedPost === post._id && (
-                <div className="px-6 pb-6 pt-2 border-t border-gray-100">
-                  <p className="text-gray-700 mb-6">{post.description}</p>
-
-                  {/* Application Section */}
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                      Apply for this position
-                    </h4>
-
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <div className="relative flex-grow">
-                        <input
-                          type="file"
-                          id={`cv-upload-${post._id}`}
-                          accept=".pdf"
-                          onChange={(e) =>
-                            handleFileChange(post._id, e.target.files[0])
-                          }
-                          className="hidden"
-                        />
-                        <label
-                          htmlFor={`cv-upload-${post._id}`}
-                          className={`flex items-center justify-center w-full p-3 border ${
-                            cvFiles[post._id]
-                              ? "border-green-500 bg-green-50"
-                              : "border-gray-300 bg-white"
-                          } rounded-lg cursor-pointer hover:bg-gray-50 transition-colors`}
-                        >
-                          <FileText
-                            className={`mr-2 h-5 w-5 ${
-                              cvFiles[post._id]
-                                ? "text-green-600"
-                                : "text-gray-500"
-                            }`}
-                          />
-                          <span
-                            className={
-                              cvFiles[post._id]
-                                ? "text-green-600"
-                                : "text-gray-700"
-                            }
-                          >
-                            {cvFiles[post._id]
-                              ? cvFiles[post._id].name
-                              : "Upload your CV (PDF)"}
-                          </span>
-                        </label>
+              <AnimatePresence>
+                {expandedPost === post._id && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-6 pt-0 border-t border-gray-100">
+                      <div className="py-4">
+                        <h4 className="text-sm font-semibold text-gray-500 uppercase mb-2">Description</h4>
+                        <p className="text-gray-700">{post.description}</p>
                       </div>
 
-                      <button
-                        onClick={() => handleApply(post._id)}
-                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center justify-center sm:w-auto transition-colors"
+                      {/* Application Section */}
+                      <motion.div 
+                        className="bg-gray-50 p-5 rounded-lg mt-4 border border-gray-200"
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2 }}
                       >
-                        <UploadCloud className="mr-2 h-5 w-5" />
-                        Submit Application
-                      </button>
+                        <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                          <UploadCloud className="w-5 h-5 mr-2 text-red-600" />
+                          Apply for this position
+                        </h4>
+
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <div className="relative flex-grow">
+                            <input
+                              type="file"
+                              id={`cv-upload-${post._id}`}
+                              accept=".pdf"
+                              onChange={(e) =>
+                                handleFileChange(post._id, e.target.files[0])
+                              }
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor={`cv-upload-${post._id}`}
+                              className={`flex items-center justify-center w-full p-3 border-2 ${
+                                cvFiles[post._id]
+                                  ? "border-green-500 bg-green-50"
+                                  : "border-gray-300 bg-white"
+                              } rounded-lg cursor-pointer hover:bg-gray-50 transition-all duration-300`}
+                            >
+                              {cvFiles[post._id] ? (
+                                <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
+                              ) : (
+                                <FileText className="mr-2 h-5 w-5 text-gray-500" />
+                              )}
+                              <span
+                                className={
+                                  cvFiles[post._id]
+                                    ? "text-green-600 font-medium"
+                                    : "text-gray-700"
+                                }
+                              >
+                                {cvFiles[post._id]
+                                  ? cvFiles[post._id].name
+                                  : "Upload your CV (PDF)"}
+                              </span>
+                            </label>
+                          </div>
+
+                          <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => handleApply(post._id)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center justify-center sm:w-auto transition-all duration-300 shadow-md hover:shadow-lg"
+                          >
+                            <UploadCloud className="mr-2 h-5 w-5" />
+                            Submit Application
+                          </motion.button>
+                        </div>
+                      </motion.div>
                     </div>
-                  </div>
-                </div>
-              )}
-            </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           ))}
         </div>
       )}

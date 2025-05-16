@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/AuthContext";
-import Sidebar from "../layout/Sidebar";
+import Sidebar from "../layout/StudentSidebar";
 import AllPost from "../components/student/AllPost";
 import GetAllApplications from "../components/student/GetAllAprovedAplications";
 import TrainingReportStudent from "../components/student/TrainingReportStudent";

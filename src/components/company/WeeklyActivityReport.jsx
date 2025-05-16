@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -22,9 +23,9 @@ const CompanyActivityReports = () => {
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeView, setActiveView] = useState("write");
-  // eslint-disable-next-line no-unused-vars
+   
   const [selectedReport, setSelectedReport] = useState(null);
-// eslint-disable-next-line no-unused-vars
+ 
 const [previousReports, setPreviousReports] = useState([]);
 
   const [reportForm, setReportForm] = useState({
@@ -234,7 +235,7 @@ const [previousReports, setPreviousReports] = useState([]);
     doc.setTextColor(0, 0, 0);
     yPosition += 20;
     
-    // eslint-disable-next-line no-unused-vars
+     
     skillsList.forEach((skill, index) => {
       if (skill.trim()) {
         doc.text(`• ${skill}`, 25, yPosition);
@@ -297,10 +298,10 @@ const submitReport = async () => {
   try {
     const token = localStorage.getItem('token');
     
-    // Create FormData object - this is important for file uploads
+    // Create FormData object
     const formData = new FormData();
     
-    // Only add the exact fields that are shown in the successful request
+    // Add form fields
     formData.append("studentName", reportForm.studentName);
     formData.append("studentId", reportForm.studentId);
     formData.append("companyName", reportForm.companyName);
@@ -312,20 +313,84 @@ const submitReport = async () => {
     formData.append("challengesFaced", reportForm.challengesFaced);
     formData.append("supervisorComments", reportForm.supervisorComments);
     
-    // Add skills as a simple array with one item - matching the format in your screenshot
+    // Add skills as a JSON string
     const filteredSkills = skillsList.filter(skill => skill.trim());
     formData.append("skillsLearned", JSON.stringify(filteredSkills));
     
-    // Create a simple PDF file
+    // Create a properly formatted PDF file with all report data
     const doc = new jsPDF();
-    doc.text('Weekly Report', 105, 15, { align: 'center' });
+    
+    // Add header
+    doc.setFillColor(220, 38, 38); // Red color (tailwind red-600)
+    doc.rect(0, 0, 210, 20, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.text('Weekly Training Activity Report', 105, 12, { align: 'center' });
+    
+    // Add student information
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0); // Black color
+    doc.text(`Student: ${reportForm.studentName} (${reportForm.studentId})`, 20, 40);
+    doc.text(`Company: ${reportForm.companyName}`, 20, 50);
+    doc.text(`Supervisor: ${reportForm.supervisorName}`, 20, 60);
+    doc.text(`Week: ${reportForm.weekNumber} (${reportForm.startDate} to ${reportForm.endDate})`, 20, 70);
+    
+    // Add report content
+    doc.setFontSize(14);
+    doc.setTextColor(220, 38, 38);
+    doc.text('Activities Summary', 20, 90);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    const activitiesLines = doc.splitTextToSize(reportForm.activitiesSummary, 170);
+    doc.text(activitiesLines, 20, 100);
+    
+    let yPosition = 100 + (activitiesLines.length * 7);
+    
+    // Skills learned
+    doc.setFontSize(14);
+    doc.setTextColor(220, 38, 38);
+    doc.text('Skills Learned', 20, yPosition + 10);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    yPosition += 20;
+    
+    filteredSkills.forEach((skill, index) => {
+      if (skill.trim()) {
+        doc.text(`• ${skill}`, 25, yPosition);
+        yPosition += 7;
+      }
+    });
+    
+    // Challenges faced
+    doc.setFontSize(14);
+    doc.setTextColor(220, 38, 38);
+    doc.text('Challenges Faced', 20, yPosition + 10);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    const challengesLines = doc.splitTextToSize(reportForm.challengesFaced, 170);
+    doc.text(challengesLines, 20, yPosition + 20);
+    
+    yPosition += 20 + (challengesLines.length * 7);
+    
+    // Supervisor comments
+    if (reportForm.supervisorComments.trim()) {
+      doc.setFontSize(14);
+      doc.setTextColor(220, 38, 38);
+      doc.text('Supervisor Comments', 20, yPosition + 10);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      const commentsLines = doc.splitTextToSize(reportForm.supervisorComments, 170);
+      doc.text(commentsLines, 20, yPosition + 20);
+    }
+    
+    // Convert the PDF to a blob
     const pdfBlob = new Blob([doc.output("arraybuffer")], { type: "application/pdf" });
-formData.append("activityReport", pdfBlob, `Weekly_Report_${reportForm.studentName}_Week${reportForm.weekNumber}.pdf`);
-
+    formData.append("activityReport", pdfBlob, `Weekly_Report_${reportForm.studentName}_Week${reportForm.weekNumber}.pdf`);
     
-    
-    
-   
     // Make the request
     await axios.post(
       `https://railway-system-production-1a43.up.railway.app/api/companies/applications/${selectedStudent.applicationId}/activity`,
@@ -333,8 +398,6 @@ formData.append("activityReport", pdfBlob, `Weekly_Report_${reportForm.studentNa
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          // Let axios set the correct content type for multipart/form-data
-          // with the boundary
         },
       }
     );
