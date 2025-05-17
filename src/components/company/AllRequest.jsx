@@ -146,7 +146,7 @@ const AllRequest = () => {
     setExpandedApp(expandedApp === id ? null : id);
   };
 
-  // eslint-disable-next-line no-unused-vars
+ 
   
 
   // Filter applications based on status and selection
@@ -417,9 +417,6 @@ const AllRequest = () => {
                                 <div className="overflow-hidden">
                                   <div className="text-sm font-bold truncate mb-1">
                                     Activity Report #{index + 1}
-                                  </div>
-                                  <div className="text-xs text-blue-600 truncate">
-                                    {report.split('/').pop()}
                                   </div>
                                 </div>
                                 <ExternalLink className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />

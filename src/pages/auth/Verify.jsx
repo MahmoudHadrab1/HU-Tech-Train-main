@@ -27,44 +27,56 @@ const Verify = () => {
   }, []);
 
   const handleVerify = async () => {
-    if (!nationalId.trim()) {
-      setError("Please enter a National ID");
-      return;
+  if (!nationalId.trim()) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Please enter a National ID",
+      confirmButtonColor: "#dc2626",
+    });
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const response = await fetch(
+      `https://railway-system-production-1a43.up.railway.app/api/auth/verify-company/${nationalId}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Company not found or invalid ID");
     }
 
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `https://railway-system-production-1a43.up.railway.app/api/auth/verify-company/${nationalId}`
-      );
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error("Company not found or invalid ID");
-      }
+    setError("");
 
-      const data = await response.json();
+    // Show success alert
+    Swal.fire({
+      icon: "success",
+      title: "Company Verified",
+      text: "Verification successful. Proceeding to registration...",
+      timer: 2000,
+      showConfirmButton: false,
+    });
 
-      setError("");
-
-      // Show success alert
-      Swal.fire({
-        icon: "success",
-        title: "Company Verified",
-        text: "Verification successful. Proceeding to registration...",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-
-      // Navigate after delay
-      setTimeout(() => {
-        navigate("/register/company", { state: { nationalId } });
-      }, 2000);
-    } catch (err) {
-      setError(err.message || "Company not found or invalid ID");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Navigate after delay
+    setTimeout(() => {
+      navigate("/register/company", { state: { nationalId } });
+    }, 2000);
+  } catch (err) {
+    // Use Sweet Alert for error messages
+    Swal.fire({
+      icon: "error",
+      title: "Verification Failed",
+      text: err.message ,
+      confirmButtonColor: "#dc2626",
+    });
+    setError(err.message ); // Still set the error state for UI indicators
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-screen bg-gray-50 items-center justify-center p-4">
@@ -155,7 +167,7 @@ const Verify = () => {
               </div>
             </div>
 
-            {/* Error message */}
+            {/* Error message
             {error && (
               <div 
                 className="mb-6 p-4 border border-red-200 rounded-lg bg-red-50 text-red-600 flex items-start"
@@ -163,7 +175,7 @@ const Verify = () => {
                 <AlertCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
                 <span>{error}</span>
               </div>
-            )}
+            )} */}
 
             {/* Information box */}
             <div 
@@ -182,20 +194,7 @@ const Verify = () => {
               </div>
             </div>
 
-            {/* Support text */}
-            <div 
-              className={`text-sm text-gray-500 mt-6 text-center transition-all duration-700 delay-800 transform ${
-                animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
-            >
-              For assistance, please contact support at{" "}
-              <a 
-                href="mailto:support@company.com" 
-                className="text-gray-700 hover:text-gray-900 font-medium"
-              >
-                support@company.com
-              </a>
-            </div>
+           
           </div>
         </div>
 

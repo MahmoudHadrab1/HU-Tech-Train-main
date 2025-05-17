@@ -166,7 +166,7 @@ const TrainingReportStudent = () => {
     doc.text(`University ID: ${studentInfo.universityId || "N/A"}`, 20, 50);
     doc.text(`Company: ${selectedApplication?.trainingPost?.company?.name || "N/A"}`, 20, 60);
     doc.text(`Position: ${selectedApplication?.trainingPost?.title || "N/A"}`, 20, 70);
-    doc.text(`Duration: ${selectedApplication?.trainingPost?.duration || "N/A"} months`, 20, 80);
+    doc.text(`Duration: ${selectedApplication?.trainingPost?.duration || "N/A"} weeks`, 20, 80);
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 90);
 
     // Line separator
@@ -417,7 +417,7 @@ const TrainingReportStudent = () => {
                     </p>
                     <p className="text-gray-600 flex items-center mt-1">
                       <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                      Duration: {app.trainingPost.duration} months
+                      Duration: {app.trainingPost.duration} weeks
                     </p>
                   </div>
                   <button
@@ -525,7 +525,7 @@ const TrainingReportStudent = () => {
               <div>
                 <p className="text-sm text-gray-500">Duration</p>
                 <p className="font-medium">
-                  {selectedApplication?.trainingPost?.duration || "N/A"} months
+                  {selectedApplication?.trainingPost?.duration || "N/A"} weeks
                 </p>
               </div>
             </div>

@@ -11,6 +11,7 @@ const Profile = () => {
     phone: "",
     location: "",
     fieldOfWork: "",
+    currentPassword: "",
     newPassword: "",
     profilePicture: null,
   });
@@ -37,14 +38,13 @@ const Profile = () => {
         );
 
         setCompanyData(res.data.data);
-        setForm({
+        setForm((prev) => ({
+          ...prev,
           name: res.data.data.company.name || "",
           phone: res.data.data.company.phone || "",
           location: res.data.data.company.location || "",
           fieldOfWork: res.data.data.company.fieldOfWork || "",
-          newPassword: "",
-          profilePicture: null,
-        });
+        }));
       } catch (err) {
         Swal.fire({
           title: "Error",
@@ -83,14 +83,64 @@ const Profile = () => {
       return;
     }
 
+    // تغيير كلمة المرور إذا تم إدخالها
+    if (form.newPassword && !form.currentPassword) {
+      Swal.fire({
+        title: "Error",
+        text: "Please enter your current password to update the password.",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+      });
+      return;
+    }
+
+    if (form.newPassword && form.currentPassword) {
+      try {
+        await axios.put(
+          "https://railway-system-production-1a43.up.railway.app/api/auth/updatepassword",
+          {
+            currentPassword: form.currentPassword,
+            newPassword: form.newPassword,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        Swal.fire({
+          title: "Password Updated",
+          text: "Your password has been changed successfully.",
+          icon: "success",
+          confirmButtonColor: "#dc2626",
+        });
+
+        setForm((prev) => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+        }));
+      } catch (err) {
+        Swal.fire({
+          title: "Password Update Failed",
+          text: err.response?.data?.message || err.message,
+          icon: "error",
+          confirmButtonColor: "#dc2626",
+        });
+        return;
+      }
+    }
+
+    // تحديث بيانات الملف الشخصي
     const formData = new FormData();
     formData.append("name", form.name);
     formData.append("phone", form.phone);
     formData.append("location", form.location);
     formData.append("fieldOfWork", form.fieldOfWork);
-    if (form.newPassword) formData.append("newPassword", form.newPassword);
-    if (form.profilePicture)
+    if (form.profilePicture) {
       formData.append("profilePicture", form.profilePicture);
+    }
 
     try {
       await axios.put(
@@ -146,9 +196,7 @@ const Profile = () => {
         <div className="flex items-center justify-center w-14 h-14 rounded-full bg-red-100 mx-auto mb-4">
           <Briefcase className="text-red-600" size={28} />
         </div>
-        <h1 className="text-2xl font-bold text-gray-800">
-          Edit Company Profile
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800">Edit Company Profile</h1>
       </div>
 
       <div className="flex items-center gap-4 mb-6">
@@ -179,6 +227,20 @@ const Profile = () => {
           />
         ))}
 
+        {/* Current Password */}
+        <div className="relative">
+          <Lock className="absolute left-3 top-3 text-gray-400" />
+          <input
+            type="password"
+            name="currentPassword"
+            value={form.currentPassword}
+            onChange={handleChange}
+            placeholder="Current Password"
+            className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition"
+          />
+        </div>
+
+        {/* New Password */}
         <div className="relative">
           <Lock className="absolute left-3 top-3 text-gray-400" />
           <input
@@ -186,11 +248,12 @@ const Profile = () => {
             name="newPassword"
             value={form.newPassword}
             onChange={handleChange}
-            placeholder="New Password (optional)"
+            placeholder="New Password"
             className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition"
           />
         </div>
 
+        {/* Profile Picture Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-1">
             Upload Profile Picture

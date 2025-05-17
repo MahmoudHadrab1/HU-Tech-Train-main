@@ -12,7 +12,10 @@ import {
   FileText,
   ChevronDown,
   CheckCircle,
-  X
+  X,
+  AlertCircle,
+  XCircle,
+  RefreshCw
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,6 +27,10 @@ const AllPost = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedPost, setExpandedPost] = useState(null);
   const [sortBy, setSortBy] = useState("latest");
+  
+  // New state to track application status per post
+  const [applicationStatus, setApplicationStatus] = useState({}); 
+  // applicationStatus structure: { postId: 'applied' | 'rejected' | null }
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -59,6 +66,14 @@ const AllPost = () => {
       ...prev,
       [postId]: file,
     }));
+    
+    // Clear any previous rejection status when a new file is selected
+    if (applicationStatus[postId] === 'rejected') {
+      setApplicationStatus((prev) => ({
+        ...prev,
+        [postId]: null,
+      }));
+    }
   };
 
   const handleApply = async (postId) => {
@@ -90,6 +105,7 @@ const AllPost = () => {
         }
       );
 
+      // On successful submission
       Swal.fire({
         icon: "success",
         title: "Applied Successfully",
@@ -100,18 +116,62 @@ const AllPost = () => {
         timerProgressBar: true,
       });
 
-      // Optionally clear file input
+      // Mark as applied and clear file input
+      setApplicationStatus((prev) => ({
+        ...prev,
+        [postId]: 'applied',
+      }));
       setCvFiles((prev) => ({ ...prev, [postId]: null }));
+      
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Application Failed",
-        text: error.response?.data?.message || error.message,
-        confirmButtonColor: "#dc2626",
-      });
+      // On rejection/error
+      const errorMessage = error.response?.data?.message || error.message;
+      
+      // Check if the error is about already applying
+      if (errorMessage.toLowerCase().includes("already applied") || 
+          errorMessage.toLowerCase().includes("you have already applied")) {
+        
+        Swal.fire({
+          icon: "error",
+          title: "Application Failed",
+          text: "You have already applied for this training post",
+          confirmButtonColor: "#dc2626",
+        });
+
+        // Mark as already applied and clear the file
+        setApplicationStatus((prev) => ({
+          ...prev,
+          [postId]: 'already_applied',
+        }));
+        setCvFiles((prev) => ({ ...prev, [postId]: null }));
+        
+      } else {
+        // For other errors, show the error and mark as rejected
+        Swal.fire({
+          icon: "error",
+          title: "Application Failed",
+          text: errorMessage,
+          confirmButtonColor: "#dc2626",
+        });
+
+        // Mark as rejected - keep the file so user can try again
+        setApplicationStatus((prev) => ({
+          ...prev,
+          [postId]: 'rejected',
+        }));
+      }
+      
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetryApplication = (postId) => {
+    // Reset the rejection status so user can try again
+    setApplicationStatus((prev) => ({
+      ...prev,
+      [postId]: null,
+    }));
   };
 
   const togglePostExpansion = (postId) => {
@@ -135,6 +195,36 @@ const AllPost = () => {
       post.company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.location.toLowerCase().includes(searchTerm.toLowerCase())
   ));
+
+  // Helper function to get application status display
+  const getApplicationStatusDisplay = (postId) => {
+    const status = applicationStatus[postId];
+    
+    if (status === 'applied') {
+      return (
+        <div className="flex items-center text-green-600 text-sm font-medium mt-2">
+          <CheckCircle className="w-4 h-4 mr-1" />
+          <span>Application Submitted</span>
+        </div>
+      );
+    } else if (status === 'rejected') {
+      return (
+        <div className="flex items-center text-red-600 text-sm font-medium mt-2">
+          <XCircle className="w-4 h-4 mr-1" />
+          <span>Application Rejected</span>
+        </div>
+      );
+    } else if (status === 'already_applied') {
+      return (
+        <div className="flex items-center text-orange-600 text-sm font-medium mt-2">
+          <AlertCircle className="w-4 h-4 mr-1" />
+          <span>Already Applied</span>
+        </div>
+      );
+    }
+    
+    return null;
+  };
 
   if (loading) {
     return (
@@ -322,7 +412,7 @@ const AllPost = () => {
                   </div>
                   <div className="flex items-center">
                     <Clock className="w-4 h-4 mr-1 text-blue-500" />
-                    <span>{post.duration} months</span>
+                    <span>{post.duration} weeks</span>
                   </div>
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-1 text-green-500" />
@@ -331,6 +421,9 @@ const AllPost = () => {
                     </span>
                   </div>
                 </div>
+
+                {/* Application Status Display */}
+                {getApplicationStatusDisplay(post._id)}
               </div>
 
               {/* Expanded Content */}
@@ -361,54 +454,117 @@ const AllPost = () => {
                           Apply for this position
                         </h4>
 
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <div className="relative flex-grow">
-                            <input
-                              type="file"
-                              id={`cv-upload-${post._id}`}
-                              accept=".pdf"
-                              onChange={(e) =>
-                                handleFileChange(post._id, e.target.files[0])
-                              }
-                              className="hidden"
-                            />
-                            <label
-                              htmlFor={`cv-upload-${post._id}`}
-                              className={`flex items-center justify-center w-full p-3 border-2 ${
-                                cvFiles[post._id]
-                                  ? "border-green-500 bg-green-50"
-                                  : "border-gray-300 bg-white"
-                              } rounded-lg cursor-pointer hover:bg-gray-50 transition-all duration-300`}
-                            >
-                              {cvFiles[post._id] ? (
-                                <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
-                              ) : (
-                                <FileText className="mr-2 h-5 w-5 text-gray-500" />
-                              )}
-                              <span
-                                className={
-                                  cvFiles[post._id]
-                                    ? "text-green-600 font-medium"
-                                    : "text-gray-700"
-                                }
-                              >
-                                {cvFiles[post._id]
-                                  ? cvFiles[post._id].name
-                                  : "Upload your CV (PDF)"}
-                              </span>
-                            </label>
+                        {/* Show application status information */}
+                        {applicationStatus[post._id] === 'applied' && (
+                          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center text-green-700">
+                              <CheckCircle className="w-5 h-5 mr-2" />
+                              <span className="font-medium">Application submitted successfully!</span>
+                            </div>
+                            <p className="text-green-600 text-sm mt-1">
+                              Your application is being reviewed. You'll be notified of the result.
+                            </p>
                           </div>
+                        )}
 
-                          <motion.button
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => handleApply(post._id)}
-                            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center justify-center sm:w-auto transition-all duration-300 shadow-md hover:shadow-lg"
-                          >
-                            <UploadCloud className="mr-2 h-5 w-5" />
-                            Submit Application
-                          </motion.button>
-                        </div>
+                        {applicationStatus[post._id] === 'already_applied' && (
+                          <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                            <div className="flex items-center text-orange-700">
+                              <AlertCircle className="w-5 h-5 mr-2" />
+                              <span className="font-medium">You have already applied for this training post</span>
+                            </div>
+                            <p className="text-orange-600 text-sm mt-1">
+                              Check your applications page to track the status of this application.
+                            </p>
+                          </div>
+                        )}
+
+                        {applicationStatus[post._id] === 'rejected' && (
+                          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center text-red-700">
+                                <XCircle className="w-5 h-5 mr-2" />
+                                <span className="font-medium">Application was rejected</span>
+                              </div>
+                              <button
+                                onClick={() => handleRetryApplication(post._id)}
+                                className="flex items-center text-red-600 hover:text-red-800 text-sm font-medium"
+                              >
+                                <RefreshCw className="w-4 h-4 mr-1" />
+                                Try Again
+                              </button>
+                            </div>
+                            <p className="text-red-600 text-sm mt-1">
+                              You can upload a new CV and reapply for this position.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* File upload and submit section - only show if not applied or already applied */}
+                        {applicationStatus[post._id] !== 'applied' && applicationStatus[post._id] !== 'already_applied' && (
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="relative flex-grow">
+                              <input
+                                type="file"
+                                id={`cv-upload-${post._id}`}
+                                accept=".pdf"
+                                onChange={(e) =>
+                                  handleFileChange(post._id, e.target.files[0])
+                                }
+                                className="hidden"
+                              />
+                              <label
+                                htmlFor={`cv-upload-${post._id}`}
+                                className={`flex items-center justify-center w-full p-3 border-2 ${
+                                  cvFiles[post._id]
+                                    ? "border-green-500 bg-green-50"
+                                    : applicationStatus[post._id] === 'rejected'
+                                    ? "border-red-300 bg-red-50"
+                                    : "border-gray-300 bg-white"
+                                } rounded-lg cursor-pointer hover:bg-gray-50 transition-all duration-300`}
+                              >
+                                {cvFiles[post._id] ? (
+                                  <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
+                                ) : applicationStatus[post._id] === 'rejected' ? (
+                                  <AlertCircle className="mr-2 h-5 w-5 text-red-500" />
+                                ) : (
+                                  <FileText className="mr-2 h-5 w-5 text-gray-500" />
+                                )}
+                                <span
+                                  className={
+                                    cvFiles[post._id]
+                                      ? "text-green-600 font-medium"
+                                      : applicationStatus[post._id] === 'rejected'
+                                      ? "text-red-600"
+                                      : "text-gray-700"
+                                  }
+                                >
+                                  {cvFiles[post._id]
+                                    ? cvFiles[post._id].name
+                                    : applicationStatus[post._id] === 'rejected'
+                                    ? "Upload a new CV (PDF)"
+                                    : "Upload your CV (PDF)"}
+                                </span>
+                              </label>
+                            </div>
+
+                            <motion.button
+                              whileHover={{ scale: 1.03 }}
+                              whileTap={{ scale: 0.97 }}
+                              onClick={() => handleApply(post._id)}
+                              className={`px-6 py-3 rounded-lg flex items-center justify-center sm:w-auto transition-all duration-300 shadow-md hover:shadow-lg ${
+                                applicationStatus[post._id] === 'rejected'
+                                  ? "bg-orange-600 hover:bg-orange-700 text-white"
+                                  : "bg-red-600 hover:bg-red-700 text-white"
+                              }`}
+                            >
+                              <UploadCloud className="mr-2 h-5 w-5" />
+                              {applicationStatus[post._id] === 'rejected' 
+                                ? "Resubmit Application" 
+                                : "Submit Application"}
+                            </motion.button>
+                          </div>
+                        )}
                       </motion.div>
                     </div>
                   </motion.div>

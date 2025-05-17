@@ -128,7 +128,7 @@ const ApplicationCard = ({ application, onSelect, selectingId }) => {
             transition={{ duration: 0.2 }}
           >
             <Clock className="w-4 h-4 mr-2 text-green-500" />
-            <span>{trainingPost.duration} months</span>
+            <span>{trainingPost.duration} weeks</span>
           </motion.div>
           
           <motion.div 
@@ -511,7 +511,7 @@ const GetAllApplications = () => {
       Swal.fire({
         icon: "error",
         title: "Selection Failed",
-        text: "There was a problem selecting this position. Please try again.",
+        text: "You can only have one selected position at a time.",
         confirmButtonColor: "#dc2626",
       });
       

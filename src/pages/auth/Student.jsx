@@ -307,15 +307,6 @@ const Student = () => {
                 </button>
               </div>
             </form>
-            
-            {/* Help text */}
-            <div 
-              className={`mt-6 text-center text-sm text-gray-500 transition-all duration-700 delay-900 transform ${
-                animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
-            >
-              Need help? Contact your department administrator
-            </div>
           </div>
         </div>
       </div>

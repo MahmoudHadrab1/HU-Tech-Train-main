@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Briefcase,
   ClipboardList,
@@ -127,20 +128,21 @@ const CompanySidebar = ({ auth, logout, setCurrentView, currentPath }) => {
       </div>
 
       <div className="absolute bottom-0 w-64 border-t border-gray-200 p-4">
-        <div
+        {/* Changed from div to Link component to correctly navigate to home page */}
+        <Link
+          to="/"
           className="flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors"
-          onClick={() => setCurrentView("profile")}
         >
           <Home className="w-5 h-5 mr-3" />
           <span>Home</span>
-        </div>
-        <div
-          className="flex items-center px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
+        </Link>
+        <button
           onClick={logout}
+          className="flex items-center px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 cursor-pointer transition-colors w-full text-left"
         >
           <LogOut className="w-5 h-5 mr-3" />
           <span>Logout</span>
-        </div>
+        </button>
       </div>
     </aside>
   );

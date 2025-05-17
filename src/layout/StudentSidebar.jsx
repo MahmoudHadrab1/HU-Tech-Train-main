@@ -1,5 +1,6 @@
 // src/layout/Sidebar.jsx
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Briefcase,
   ClipboardList,
@@ -126,21 +127,21 @@ const Sidebar = ({ auth, logout, navigate, currentPath }) => {
       </div>
 
       <div className="absolute bottom-0 w-64 border-t border-gray-200 p-4">
-        <div
-          className="flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors"
-          onClick={() => navigate("/")}
-        >
-          <Home className="w-5 h-5 mr-3" />
-          <span>Home</span>
-        </div>
-        <div
-          className="flex items-center px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
-          onClick={logout}
-        >
-          <LogOut className="w-5 h-5 mr-3" />
-          <span>Logout</span>
-        </div>
-      </div>
+  <Link
+    to="/"
+    className="flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors"
+  >
+    <Home className="w-5 h-5 mr-3" />
+    <span>Home</span>
+  </Link>
+  <div
+    className="flex items-center px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
+    onClick={logout}
+  >
+    <LogOut className="w-5 h-5 mr-3" />
+    <span>Logout</span>
+  </div>
+</div>
     </aside>
   );
 };

@@ -1,8 +1,9 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Home,
   Info,
-  HelpCircle,
   GraduationCap,
   Building2,
   Users,
@@ -13,51 +14,20 @@ import {
   Instagram,
   Twitter,
 } from "lucide-react";
+import { Link as RouterLink } from "react-router-dom";
 
-// This would normally use React Router's Link and useNavigate
-// For demo purposes, we're using simple components
-const Link = ({ to, children, className, onClick }) => (
-  <a
-    href={to}
-    className={className}
-    onClick={(e) => {
-      e.preventDefault();
-      if (onClick) onClick();
-    }}
-  >
-    {children}
-  </a>
-);
-
-const useNavigate = () => {
-  return (page) => {
-    console.log(`Navigating to: ${page}`);
-  };
-};
-
-const Footer = ({ activeTab }) => {
-  const navigate = useNavigate();
-
-  // Handle navigation
-  const handleNavClick = (page) => {
-    // Navigate and scroll to top
-    navigate(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // Handle How It Works scroll with tab selection
-  const handleHowItWorksClick = () => {
-    // First navigate to home page if not already there
-    navigate("/");
-
-    // Then scroll to the How It Works section
-    setTimeout(() => {
-      const howItWorksSection = document.getElementById("how-it-works");
-      if (howItWorksSection) {
-        howItWorksSection.scrollIntoView({ behavior: "smooth" });
-      }
-    }, 100);
-  };
+const Footer = () => {
+  const location = useLocation();
+  const [showFooter, setShowFooter] = useState(true);
+  
+  // Check if current path is a dashboard path to hide footer
+  useEffect(() => {
+    const isDashboardPath = location.pathname.includes('/dashboard');
+    setShowFooter(!isDashboardPath);
+  }, [location.pathname]);
+  
+  // Don't render the footer on dashboard pages
+  if (!showFooter) return null;
 
   return (
     <footer className="bg-gray-100 text-gray-800 py-12 mt-12 border-t-4 border-red-600 shadow-inner">
@@ -66,16 +36,16 @@ const Footer = ({ activeTab }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-1">
-            <div
+            <RouterLink
+              to="/"
               className="flex items-center mb-4 cursor-pointer"
-              onClick={() => handleNavClick("/")}
             >
               <GraduationCap className="text-red-600 mr-2" size={24} />
               <h2 className="text-2xl font-bold">
                 <span className="text-red-600">HU-</span>
                 Tech Train
               </h2>
-            </div>
+            </RouterLink>
             <p className="text-gray-500 mb-6 leading-relaxed">
               Building bridges between education and industry through quality
               internships and training opportunities.
@@ -97,12 +67,7 @@ const Footer = ({ activeTab }) => {
             <ul className="space-y-3">
               <FooterLink icon={<Home size={16} />} text="Home" to="/" />
               <FooterLink icon={<Info size={16} />} text="About" to="/about" />
-              <FooterLink
-                icon={<HelpCircle size={16} />}
-                text="How It Works"
-                isButton
-                onClick={handleHowItWorksClick}
-              />
+              {/* "How It Works" link removed as requested */}
             </ul>
           </div>
 
@@ -126,12 +91,12 @@ const Footer = ({ activeTab }) => {
               <FooterLink
                 icon={<Users size={16} />}
                 text="Department Head"
-                to="/login/department"
+                to="/login/department-head"
               />
               <FooterLink
                 icon={<UserPlus size={16} />}
                 text="Register"
-                to="/register"
+                to="/verify"
               />
             </ul>
           </div>
@@ -145,15 +110,21 @@ const Footer = ({ activeTab }) => {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <Mail className="w-5 h-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-500 hover:text-red-600 transition-colors">
+                <a 
+                  href="mailto:contact@hutechtrain.edu.jo"
+                  className="text-gray-500 hover:text-red-600 transition-colors"
+                >
                   contact@hutechtrain.edu.jo
-                </span>
+                </a>
               </li>
               <li className="flex items-start">
                 <Phone className="w-5 h-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-500 hover:text-red-600 transition-colors">
+                <a 
+                  href="tel:+96253903333"
+                  className="text-gray-500 hover:text-red-600 transition-colors"
+                >
                   +962 5 3903333
-                </span>
+                </a>
               </li>
             </ul>
           </div>
@@ -172,30 +143,16 @@ const Footer = ({ activeTab }) => {
 };
 
 // Component for footer links
-const FooterLink = ({ icon, text, to, isButton, onClick }) => {
-  if (isButton) {
-    return (
-      <li>
-        <button
-          className="flex items-center text-gray-500 hover:text-red-600 transition-colors"
-          onClick={onClick}
-        >
-          <span className="mr-2">{icon}</span>
-          {text}
-        </button>
-      </li>
-    );
-  }
-
+const FooterLink = ({ icon, text, to }) => {
   return (
     <li>
-      <Link
+      <RouterLink
         to={to}
         className="flex items-center text-gray-500 hover:text-red-600 transition-colors"
       >
         <span className="mr-2">{icon}</span>
         {text}
-      </Link>
+      </RouterLink>
     </li>
   );
 };
