@@ -172,7 +172,7 @@ const AboutPage = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-red-900/30 to-transparent"></div>
 
                   {/* Overlay Content */}
-                  <div className="absolute bottom-0 left-0 right-0 p-8">
+                  <div className="absolute bottom-0 left-0 right-0 p-10">
                     <h3 className="text-white text-2xl font-bold mb-2">
                       Our Mission
                     </h3>

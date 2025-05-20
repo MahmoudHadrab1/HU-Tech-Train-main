@@ -95,7 +95,7 @@ const Footer = () => {
               />
               <FooterLink
                 icon={<UserPlus size={16} />}
-                text="Register"
+                text="Register as Company"
                 to="/verify"
               />
             </ul>

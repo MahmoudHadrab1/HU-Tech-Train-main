@@ -6,10 +6,6 @@ import Swal from "sweetalert2";
 import { 
   User, 
   Lock, 
-  CheckCircle, 
-  FileText, 
-  Building2, 
-  MessageSquare,
   ArrowRight,
   Eye,
   EyeOff
@@ -24,7 +20,7 @@ const Student = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [animate, setAnimate] = useState(false);
 
-  // Animation trigger on component mount
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimate(true);
@@ -35,7 +31,17 @@ const Student = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    
+      if (!/^\d{7}$/.test(universityId)) {
+        Swal.fire({
+        title: "Invalid University ID",
+        text: "University ID must be exactly 7 digits (numbers only)",
+        icon: "warning",
+        confirmButtonColor: "#dc2626",
+         });
+        setLoading(false);
+      return;
+   }
     try {
       const res = await axios.post(
         "https://railway-system-production-1a43.up.railway.app/api/auth/login/student",

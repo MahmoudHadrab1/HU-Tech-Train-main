@@ -205,19 +205,23 @@ const PendingApplication = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <motion.div
-          animate={{ 
-            rotate: 360,
+        {/* <motion.div
+           animate={{ 
+             rotate: 360,
             scale: [1, 1.1, 1]
-          }}
-          transition={{ 
-            rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-            scale: { duration: 1, repeat: Infinity, repeatType: "reverse" }
-          }}
-          className="relative"
+           }}
+           transition={{ 
+             rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+             scale: { duration: 1, repeat: Infinity, repeatType: "reverse" }
+           }}
+           className="relative"
         >
           <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full"></div>
-        </motion.div>
+        </motion.div> */}
+        <div className="relative">
+        <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+        </div>
+
         <motion.p 
           className="text-lg font-medium text-gray-700 mt-4"
           initial={{ opacity: 0, y: 10 }}
@@ -282,12 +286,12 @@ const PendingApplication = () => {
           <div className="flex items-center">
             <motion.div 
               className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-2xl mr-4"
-              whileHover={{ 
-                scale: 1.1,
-                rotate: 5,
+               whileHover={{ 
+                 scale: 1.1,
+                  rotate: 5, 
                 boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.25)"
               }}
-              transition={{ type: "spring", stiffness: 400 }}
+               transition={{ type: "spring", stiffness: 400 }}
             >
               <Clock className="w-8 h-8 text-white" />
             </motion.div>
@@ -302,9 +306,9 @@ const PendingApplication = () => {
           </div>
           <motion.div 
             className="bg-blue-50 px-4 py-2 rounded-full border border-blue-200"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3, type: "spring" }}
+             initial={{ scale: 0 }}
+             animate={{ scale: 1 }}
+             transition={{ delay: 0.3, type: "spring" }}
           >
             <span className="text-blue-700 font-semibold">
               {applications.length} Pending
@@ -322,15 +326,15 @@ const PendingApplication = () => {
         >
           <motion.div
             className="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
-            animate={{ 
-              scale: [1, 1.05, 1],
-              rotate: [0, 5, -5, 0]
-            }}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
+             animate={{ 
+               scale: [1, 1.05, 1],
+               rotate: [0, 5, -5, 0]
+             }}
+             transition={{ 
+               duration: 3, 
+               repeat: Infinity,
+               repeatType: "reverse"
+             }}
           >
             <AlertCircle className="w-12 h-12 text-gray-400" />
           </motion.div>
@@ -493,7 +497,7 @@ const PendingApplication = () => {
                               <input
                                 type="file"
                                 id={`file-${app._id}`}
-                                accept=".pdf,.doc,.docx,.jpg,.png"
+                                accept=".pdf"
                                 onChange={(e) => handleFileChange(app._id, e.target.files[0])}
                                 className="hidden"
                               />
@@ -514,10 +518,10 @@ const PendingApplication = () => {
                                   <div>
                                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                                     <p className="text-gray-600">
-                                      Click to select file or drag and drop
+                                      Click to select file 
                                     </p>
                                     <p className="text-sm text-gray-500 mt-1">
-                                      PDF, DOC, DOCX, JPG, PNG up to 10MB
+                                      PDF files only
                                     </p>
                                   </div>
                                 )}

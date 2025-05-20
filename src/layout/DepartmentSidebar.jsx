@@ -9,7 +9,7 @@ const DepartmentSidebar = ({ auth, setCurrentView, currentView }) => {
   const departmentName = auth?.user?.profile?.department || "Department";
   
   return (
-    <div className="w-64 border-r border-gray-200 min-h-screen bg-white flex flex-col">
+    <div className="w-64 border-r border-gray-200 h-screen bg-white flex flex-col justify-between">
       {/* Department Head Profile */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-center mb-4">
@@ -26,7 +26,7 @@ const DepartmentSidebar = ({ auth, setCurrentView, currentView }) => {
       </div>
       
       {/* Navigation Links */}
-      <nav className="mt-6 flex-grow">
+      <nav className="mt-2 flex-grow">
         <button
           onClick={() => setCurrentView('students')}
           className={`w-full flex items-center px-6 py-3 ${

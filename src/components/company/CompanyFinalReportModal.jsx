@@ -55,16 +55,26 @@ const CompanyFinalReport = () => {
         );
 
         // Filter for students who are approved and selected (in training)
-        const studentsInTraining = response.data?.data?.applications?.filter(
-          app => app.status === "APPROVED" && app.selectedByStudent === true
-        ).map(app => ({
-          ...app.student,
-          _id: app.student._id,
-          name: app.student.name,
-          department: app.student.department,
-          applicationId: app._id,
-          trainingPost: app.trainingPost
-        }));
+        const studentsInTraining = response.data?.data?.applications?.filter(app => {
+        const hasOfficialDoc = !!app.officialDocument;
+        const hasFinalStudent = !!app.finalReportByStudent;
+        const hasFinalCompany = !!app.finalReportByCompany;
+
+        return (
+          app.status === "APPROVED" &&
+          app.selectedByStudent === true &&
+          hasOfficialDoc &&
+          (!hasFinalStudent || !hasFinalCompany)
+        );
+      }).map(app => ({
+        ...app.student,
+        _id: app.student._id,
+        name: app.student.name,
+        department: app.student.department,
+        applicationId: app._id,
+        trainingPost: app.trainingPost
+      }));
+
 
         setStudents(studentsInTraining);
 
@@ -188,7 +198,7 @@ const CompanyFinalReport = () => {
 
       // Submit to the backend
       await axios.post(
-        `https://railway-system-production-1a43.up.railway.app/api/companies/applications/${selectedStudent.applicationId}/final-report`,
+        `https://railway-system-production-1a43.up.railway.app/api/companies/applications/${selectedStudent.applicationId}/final`,
         formData,
         {
           headers: {
@@ -367,79 +377,17 @@ const CompanyFinalReport = () => {
                 </div>
               </div>
 
-              {/* Important Notice */}
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
-                <div className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-blue-500 mr-2 mt-0.5" />
-                  <div>
-                    <p className="text-blue-700">
-                      <strong>Note:</strong> The student training period is <strong>8 weeks</strong> during 
-                      regular semesters and <strong>6 weeks</strong> during the summer semester.
-                    </p>
-                  </div>
-                </div>
-              </div>
+            
 
               {/* Download Template */}
               <div className="text-center">
                 <button 
                   onClick={handleDownloadTemplate} 
-                  className="flex items-center justify-center px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 mx-auto transition-colors"
+                  className="flex items-center justify-center px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 mx-auto transition-colors"
                 >
                   <Download className="w-5 h-5 mr-2" />
                   Download Evaluation Form Template
                 </button>
-              </div>
-
-              {/* Additional Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Overall Rating
-                  </label>
-                  <select
-                    name="overallRating"
-                    value={reportForm.overallRating}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
-                  >
-                    <option value="">Select Rating</option>
-                    <option value="excellent">Excellent</option>
-                    <option value="very-good">Very Good</option>
-                    <option value="good">Good</option>
-                    <option value="satisfactory">Satisfactory</option>
-                    <option value="needs-improvement">Needs Improvement</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Supervisor Name
-                  </label>
-                  <input
-                    type="text"
-                    name="supervisorName"
-                    value={reportForm.supervisorName}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
-                    placeholder="Enter supervisor name"
-                  />
-                </div>
-              </div>
-
-              {/* Comments */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Additional Comments
-                </label>
-                <textarea
-                  name="comments"
-                  value={reportForm.comments}
-                  onChange={handleInputChange}
-                  rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
-                  placeholder="Any additional comments about the student's performance..."
-                ></textarea>
               </div>
 
               {/* File Upload */}
@@ -461,7 +409,7 @@ const CompanyFinalReport = () => {
                       {reportFile ? (
                         <span className="text-green-600 font-medium">{reportFile.name}</span>
                       ) : (
-                        <>Click to upload PDF or drag and drop</>
+                        <>Click to upload PDF file</>
                       )}
                     </p>
                     <p className="text-sm text-gray-400 mt-1">PDF files only</p>
@@ -469,36 +417,7 @@ const CompanyFinalReport = () => {
                 </div>
               </div>
 
-              {/* PDF Preview */}
-              {templateUrl && !reportFile && (
-                <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-300">
-                  <div className="bg-gray-200 p-2 flex justify-between items-center">
-                    <span className="text-sm text-gray-700">Template Preview</span>
-                    <button 
-                      onClick={handleDownloadTemplate} 
-                      className="p-1 rounded-full hover:bg-gray-300"
-                      title="Download Template"
-                    >
-                      <Download className="w-5 h-5"/>
-                    </button>
-                  </div>
-                  <div className="p-4 h-[400px]">
-                    <object 
-                      data={`${templateUrl}#toolbar=0`}
-                      type="application/pdf" 
-                      width="100%" 
-                      height="100%" 
-                      className="w-full h-full"
-                    >
-                      <p>Your browser does not support viewing PDFs. 
-                        <a href={templateUrl} download className="text-blue-600 hover:underline">
-                          Download the PDF
-                        </a> instead.
-                      </p>
-                    </object>
-                  </div>
-                </div>
-              )}
+             
 
               {/* Submit Button */}
               <div className="flex justify-end pt-4 border-t border-gray-200">

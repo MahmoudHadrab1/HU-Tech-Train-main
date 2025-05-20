@@ -54,7 +54,16 @@ const Company = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+ // Check if nationalId exceeds 9 digits
+  if (!/^\d{9}$/.test(formData.nationalId)) {
+    Swal.fire({
+      title: "Invalid National ID",
+      text: "National ID must be exactly 9 digits (numbers only).",
+      icon: "warning",
+      confirmButtonColor: "#dc2626",
+    });
+    return;
+  }
     if (!validate()) return;
 
     setLoading(true);
@@ -390,7 +399,7 @@ const Company = () => {
                 <span className="text-sm text-gray-500">Don't have an account yet? </span>
                 <a 
                   href="/verify" 
-                  className="text-sm font-medium text-red-600 hover:text-red-700"
+                  className="text-sm font-medium text-gray-600 hover:text-gray-700"
                 >
                   Register Now
                 </a>

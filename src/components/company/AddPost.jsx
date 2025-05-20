@@ -14,7 +14,8 @@ import {
   CheckCircle, 
   ChevronDown, 
   X,
-  Calendar
+  Calendar,
+  AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -311,6 +312,19 @@ const AddPost = () => {
                 </div>
               </div>
 
+              {/* Important Notice */}
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
+                <div className="flex items-start">
+                  <AlertCircle className="w-5 h-5 text-blue-500 mr-2 mt-0.5" />
+                  <div>
+                    <p className="text-blue-700">
+                      <strong>Note:</strong> The student training period is <strong>8 weeks</strong> during 
+                      regular semesters and <strong>6 weeks</strong> during the summer semester.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Location */}
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">Location</label>
@@ -369,7 +383,10 @@ const AddPost = () => {
                 className={`relative bg-red-600 hover:bg-red-700 text-white w-full px-6 py-4 rounded-xl font-medium transition-all text-lg ${submitting ? "opacity-80 cursor-wait" : ""}`}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
+                
               >
+               
+
                 <span className="relative z-10 flex items-center justify-center">
                   {submitting ? (
                     <>

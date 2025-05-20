@@ -11,6 +11,7 @@ const Profile = () => {
     phone: "",
     location: "",
     fieldOfWork: "",
+    email: "",
     currentPassword: "",
     newPassword: "",
     profilePicture: null,
@@ -44,6 +45,7 @@ const Profile = () => {
           phone: res.data.data.company.phone || "",
           location: res.data.data.company.location || "",
           fieldOfWork: res.data.data.company.fieldOfWork || "",
+          email: res.data.data.user.email || "",
         }));
       } catch (err) {
         Swal.fire({
@@ -138,6 +140,8 @@ const Profile = () => {
     formData.append("phone", form.phone);
     formData.append("location", form.location);
     formData.append("fieldOfWork", form.fieldOfWork);
+    
+
     if (form.profilePicture) {
       formData.append("profilePicture", form.profilePicture);
     }
@@ -191,6 +195,7 @@ const Profile = () => {
   const { company } = companyData;
 
   return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
     <div className="max-w-xl my-10 p-8 bg-white rounded-2xl shadow-xl border border-gray-200">
       <div className="text-center mb-8">
         <div className="flex items-center justify-center w-14 h-14 rounded-full bg-red-100 mx-auto mb-4">
@@ -212,6 +217,8 @@ const Profile = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
+           
+
         {["name", "phone", "location", "fieldOfWork"].map((field) => (
           <input
             key={field}
@@ -226,7 +233,14 @@ const Profile = () => {
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition"
           />
         ))}
-
+       <input
+            type="email"
+            name="email"
+            value={form.email}
+            readOnly
+            placeholder="Email"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition"
+          />
         {/* Current Password */}
         <div className="relative">
           <Lock className="absolute left-3 top-3 text-gray-400" />
@@ -274,6 +288,7 @@ const Profile = () => {
           Update Profile
         </button>
       </form>
+    </div>
     </div>
   );
 };

@@ -27,6 +27,40 @@ const Sidebar = ({ auth, logout, navigate, currentPath }) => {
     console.log("Auth or user not available");
     return null;
   }
+  const getTrainingStatusStyle = (status) => {
+    switch(status) {
+      case "NOT_STARTED":
+        return {
+          icon: "text-gray-500",
+          bg: "bg-gray-100 text-gray-700",
+          display: "Not Started"
+        };
+      case "WAITING_FOR_APPROVAL":
+        return {
+          icon: "text-yellow-500",
+          bg: "bg-yellow-100 text-yellow-700",
+          display: "Waiting for Approval"
+        };
+      case "IN_TRAINING":
+        return {
+          icon: "text-green-500",
+          bg: "bg-blue-100 text-blue-700",
+          display: "In Training"
+        };
+      case "COMPLETED":
+        return {
+          icon: "text-blue-500",
+          bg: "bg-green-100 text-green-700",
+          display: "Completed"
+        };
+      default:
+        return {
+          icon: "text-gray-500",
+          bg: "bg-gray-100 text-gray-700",
+          display: "Not Started"
+        };
+    }
+  };
 
   // Extract user information
   const profile = auth.user.profile || {}; 
@@ -67,7 +101,7 @@ const Sidebar = ({ auth, logout, navigate, currentPath }) => {
                 <GitBranch className="w-4 h-4 mr-1 text-blue-500" />
                 Dept: {department}
               </div>
-              <div className="flex items-center justify-center">
+              {/* <div className="flex items-center justify-center">
                 <CheckCircle
                   className={`w-4 h-4 mr-1 ${
                     trainingStatus === "IN_TRAINING"
@@ -84,7 +118,20 @@ const Sidebar = ({ auth, logout, navigate, currentPath }) => {
                 >
                   {trainingStatus.replace(/_/g, " ")}
                 </span>
-              </div>
+              </div> */}
+              <div className="flex items-center justify-center">
+              {(() => {
+              const statusStyle = getTrainingStatusStyle(trainingStatus);
+              return (
+               <>
+              <CheckCircle className={`w-4 h-4 mr-1 ${statusStyle.icon}`} />
+           <span className={`text-xs px-2 py-1 rounded-full ${statusStyle.bg}`}>
+            {statusStyle.display}
+          </span>
+             </>
+              );
+            })()}
+          </div>
             </div>
           </div>
         </div>

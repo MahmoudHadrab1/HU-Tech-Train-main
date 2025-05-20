@@ -326,7 +326,7 @@ const AllRequest = () => {
                           <Clock className="w-4 h-4 text-gray-500 mt-1 mr-2" />
                           <div>
                             <p className="text-sm font-medium text-gray-700">Duration</p>
-                            <p className="text-gray-600">{app.trainingPost.duration} months</p>
+                            <p className="text-gray-600">{app.trainingPost.duration} Weeks</p>
                           </div>
                         </div>
                         

@@ -48,7 +48,7 @@ const FILTER_STATUS_MAP = {
   "pending": "UNDER_REVIEW",
   "approved": "APPROVED",
   "rejected": "REJECTED",
-  "selected": "SELECTED"
+   "selected": "SELECTED"
 };
 
 // Application Card Component
@@ -177,30 +177,36 @@ const ApplicationCard = ({ application, onSelect, selectingId }) => {
                     View CV
                   </motion.a>
 
-                  {status === "APPROVED" && (
-                    <motion.button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelect(_id);
-                      }}
-                      disabled={selectingId === _id}
-                      className="flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-medium rounded-lg transition disabled:opacity-70"
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      {selectingId === _id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                          Selecting...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-1.5" />
-                          Select This Position
-                        </>
-                      )}
-                    </motion.button>
-                  )}
+                  {status === "APPROVED" ? (
+               <motion.button
+               onClick={(e) => {
+               e.stopPropagation();
+              onSelect(_id);
+              }}
+    disabled={selectingId === _id}
+    className="flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-medium rounded-lg transition disabled:opacity-70"
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.97 }}
+  >
+    {selectingId === _id ? (
+      <>
+        <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+        Selecting...
+      </>
+    ) : (
+      <>
+        <CheckCircle className="w-4 h-4 mr-1.5" />
+        Select This Position
+      </>
+    )}
+  </motion.button>
+) : status === "SELECTED" ? (
+  <div className="flex items-center justify-center px-4 py-2 bg-blue-100 text-blue-700 text-sm font-semibold rounded-lg">
+    <CheckCircle className="w-4 h-4 mr-1.5" />
+    Position Selected
+  </div>
+) : null}
+
                 </div>
               </motion.div>
             </div>
@@ -353,7 +359,7 @@ const ApplicationsFilter = ({ filters, setFilters, totalCount }) => {
             Rejected
           </button>
           
-          <button
+          {/* <button
             onClick={() => handleStatusChange("selected")}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors flex items-center gap-1.5 ${
               isStatusSelected("selected") 
@@ -367,7 +373,7 @@ const ApplicationsFilter = ({ filters, setFilters, totalCount }) => {
               <Square className="w-4 h-4" />
             )}
             Selected
-          </button>
+          </button> */}
         </div>
       </div>
       

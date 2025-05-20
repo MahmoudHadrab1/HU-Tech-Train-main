@@ -59,16 +59,29 @@ const [previousReports, setPreviousReports] = useState([]);
           }
         );
 
-        const selectedStudents = response.data?.data?.applications?.filter(
-          app => app.status === "APPROVED" && app.selectedByStudent === true
-        ).map(app => ({
-          ...app.student,
-          _id: app.student._id,
-          name: app.student.name,
-          department: app.student.department,
-           applicationId: app._id // أضف هذا السطر
-          // studentId سيتم تعبئته يدويًا
-        }));
+        const applications = response.data?.data?.applications || [];
+
+const selectedStudents = applications
+  .filter(app => {
+    const hasOfficialDoc = !!app.officialDocument;
+    const hasStudentFinal = !!app.finalReportByStudent;
+    const hasCompanyFinal = !!app.finalReportByCompany;
+
+    // ✅ حالة in training فقط
+    return (
+      app.status === "APPROVED" &&
+      app.selectedByStudent &&
+      hasOfficialDoc &&
+      (!hasStudentFinal || !hasCompanyFinal)
+    );
+  })
+  .map(app => ({
+    ...app.student,
+    _id: app.student._id,
+    name: app.student.name,
+    department: app.student.department,
+    applicationId: app._id 
+  }));
 
         setStudents(selectedStudents);
 
@@ -494,8 +507,8 @@ const submitReport = async () => {
         
         <div className="w-full sm:w-auto flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
           {/* Tab buttons */}
-          <div className="bg-gray-100 rounded-lg p-1 flex">
-            <button
+          <div className="bg-white-100 rounded-lg p-1 flex">
+           {/*  <button
               onClick={() => setActiveView("write")}
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
                 activeView === "write"
@@ -504,8 +517,8 @@ const submitReport = async () => {
               }`}
             >
               Write Report
-            </button>
-            <button
+            </button> */}
+           {/*  <button
               onClick={() => {
                 setActiveView("previous");
                 // setSelectedReport(null);
@@ -517,11 +530,11 @@ const submitReport = async () => {
               }`}
             >
               Previous Reports
-            </button>
+            </button> */}
           </div>
           
           {/* Search */}
-          <div className="relative">
+          {/* <div className="relative">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             <input
               type="text"
@@ -530,7 +543,7 @@ const submitReport = async () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 w-full sm:w-auto"
             />
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -540,6 +553,18 @@ const submitReport = async () => {
           {/* Students List */}
           <div className="lg:col-span-1 bg-gray-50 p-4 rounded-lg">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Select Student</h2>
+            {/* Search Box Below Title */}
+<div className="relative mb-4">
+  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+  <input
+    type="text"
+    placeholder="Search by name or ID..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full pl-9 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
+  />
+</div>
+
             
             {filteredStudents.length === 0 ? (
               <div className="py-8 text-center text-gray-500">
@@ -797,7 +822,6 @@ const submitReport = async () => {
         </div>
       )}
       
-      {/* Previous Reports View */}
       {activeView === "previous" && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Reports List */}

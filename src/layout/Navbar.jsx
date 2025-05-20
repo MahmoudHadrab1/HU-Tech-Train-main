@@ -19,11 +19,7 @@ export default function Navbar() {
   const { auth } = useAuth(); // Removed logout from here
   const location = useLocation();
 
-  // Check if current path is a dashboard path to hide navbar
-  useEffect(() => {
-    const isDashboardPath = location.pathname.includes('/dashboard');
-    setShowNavbar(!isDashboardPath);
-  }, [location.pathname]);
+ 
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
