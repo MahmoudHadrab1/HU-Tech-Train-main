@@ -338,15 +338,16 @@ const AllRequest = () => {
                           </div>
                         </div>
                         
-                        {app.selectedByStudent && (
-                          <div className="flex items-start">
-                            <Star className="w-4 h-4 text-yellow-500 mt-1 mr-2" />
-                            <div>
-                              <p className="text-sm font-medium text-gray-700">Selection Status</p>
-                              <p className="text-green-600 font-medium">Selected by student for internship</p>
-                            </div>
+                          {app.selectedByStudent && app.status === "IN_TRAINING" && app.officialDocument && (
+                        <div className="flex items-start">
+                          <Star className="w-4 h-4 text-yellow-500 mt-1 mr-2" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Selection Status</p>
+                            <p className="text-green-600 font-medium">Student officially selected after department approval</p>
                           </div>
-                        )}
+                        </div>
+                    )}
+
                       </div>
                       
                       <div>

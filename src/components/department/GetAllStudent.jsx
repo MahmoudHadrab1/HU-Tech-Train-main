@@ -68,19 +68,10 @@ const filterStudents = () => {
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.studentId.toString().includes(searchQuery);
 
-    const hasWaitingApprovalApp =
-      student.applications?.some(
-        (app) => app.status === "APPROVED" && !app.officialDocument
-      );
-
     let matchesFilter = false;
 
     if (filter === "ALL") {
       matchesFilter = true;
-    } else if (filter === "WAITING_APPROVAL") {
-      matchesFilter =
-        student.trainingStatus === "WAITING_FOR_APPROVAL" ||
-        (student.trainingStatus === "NOT_STARTED" && hasWaitingApprovalApp);
     } else {
       matchesFilter = student.trainingStatus === filter;
     }
@@ -90,6 +81,7 @@ const filterStudents = () => {
 
   setFilteredStudents(filtered);
 };
+
 
 
 
@@ -113,24 +105,25 @@ const filterStudents = () => {
       case "COMPLETED":
         return "bg-green-100 text-green-700";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-yellow-100 text-yellow-700";
     }
   };
 
   const getStatusDisplayName = (status) => {
-    switch (status) {
-      case "NOT_STARTED":
-        return "Not Started";
-      case "WAITING_APPROVAL":
-        return "Waiting Approval";
-      case "IN_TRAINING":
-        return "In Training";
-      case "COMPLETED":
-        return "Completed";
-      default:
-        return status;
-    }
-  };
+  switch (status) {
+    case "NOT_STARTED":
+      return "Not Started";
+    case "WAITING_FOR_APPROVAL":
+      return "Waiting for Approval";
+    case "IN_TRAINING":
+      return "In Training";
+    case "COMPLETED":
+      return "Completed";
+    default:
+      return status;
+  }
+};
+
 
   const getStudentCompany = (student) => {
     if (!student.applications || student.applications.length === 0) return null;
@@ -227,35 +220,24 @@ const filterStudents = () => {
     setShowStudentModal(true);
   };
 
-  const getStatusCounts = () => {
+ const getStatusCounts = () => {
   const counts = {
     ALL: students.length,
     NOT_STARTED: 0,
-    WAITING_APPROVAL: 0,
+    WAITING_FOR_APPROVAL: 0,
     IN_TRAINING: 0,
     COMPLETED: 0,
   };
 
   students.forEach((student) => {
-    const hasWaitingApprovalApp =
-      student.applications?.some(
-        (app) => app.status === "APPROVED" && !app.officialDocument
-      );
-
-    if (
-      student.trainingStatus === "WAITING_FOR_APPROVAL" ||
-      (student.trainingStatus === "NOT_STARTED" && hasWaitingApprovalApp)
-    ) {
-      counts.WAITING_APPROVAL++;
-    } else if (student.trainingStatus in counts) {
+    if (student.trainingStatus in counts) {
       counts[student.trainingStatus]++;
-    } else {
-      counts.NOT_STARTED++;
     }
   });
 
   return counts;
 };
+
 
 
   const statusCounts = getStatusCounts();
@@ -296,7 +278,7 @@ const filterStudents = () => {
         {[
           { key: "ALL", label: "All Students", color: "bg-gray-500", icon: Users },
           { key: "NOT_STARTED", label: "Not Started", color: "bg-gray-500", icon: Clock },
-          { key: "WAITING_APPROVAL", label: "Waiting Approval", color: "bg-yellow-500", icon: Clock },
+          { key: "WAITING_FOR_APPROVAL", label: "Waiting Approval", color: "bg-yellow-500", icon: Clock },
           { key: "IN_TRAINING", label: "In Training", color: "bg-blue-500", icon: User },
           { key: "COMPLETED", label: "Completed", color: "bg-green-500", icon: CheckCircle }
         ].map((item) => {
@@ -384,7 +366,7 @@ const filterStudents = () => {
         <div className="space-y-4">
           {filteredStudents.map((student) => {
             const company = getStudentCompany(student);
-            const hasPendingApps = student.applications && 
+           // const hasPendingApps = student.applications && 
               student.applications.some(app => app.status === "UNDER_REVIEW");
             
             return (
@@ -425,7 +407,7 @@ const filterStudents = () => {
                       <p className="text-lg font-semibold text-gray-900">{student.completedHours}</p>
                     </div>
                     
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    {/* <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                       hasPendingApps && student.trainingStatus === "NOT_STARTED"
                         ? "bg-yellow-100 text-yellow-700"
                         : getStatusColor(student.trainingStatus)
@@ -434,7 +416,11 @@ const filterStudents = () => {
                         ? "Waiting Approval"
                         : getStatusDisplayName(student.trainingStatus)
                       }
-                    </span>
+                    </span> */}
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(student.trainingStatus)}`}>
+          {getStatusDisplayName(student.trainingStatus)}
+        </span>
+
                     
                     <ArrowRight className="w-5 h-5 text-gray-400" />
                   </div>

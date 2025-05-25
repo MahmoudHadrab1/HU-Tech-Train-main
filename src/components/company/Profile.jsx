@@ -85,7 +85,7 @@ const Profile = () => {
       return;
     }
 
-    // تغيير كلمة المرور إذا تم إدخالها
+   
     if (form.newPassword && !form.currentPassword) {
       Swal.fire({
         title: "Error",
@@ -134,7 +134,7 @@ const Profile = () => {
       }
     }
 
-    // تحديث بيانات الملف الشخصي
+    
     const formData = new FormData();
     formData.append("name", form.name);
     formData.append("phone", form.phone);

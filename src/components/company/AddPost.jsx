@@ -22,7 +22,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const AddPost = () => {
   const [form, setForm] = useState({
     title: "",
-    duration: "6", // Default to 6 weeks
+    duration: "6", 
     location: "",
     availableUntil: "",
     description: "",

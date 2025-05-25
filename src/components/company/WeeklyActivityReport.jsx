@@ -30,7 +30,7 @@ const [previousReports, setPreviousReports] = useState([]);
 
   const [reportForm, setReportForm] = useState({
     studentName: "",
-    studentId: "", // سيتم تعبئته من الشركة يدويًا
+    studentId: "", 
     companyName: "",
     supervisorName: "",
     weekNumber: "",
@@ -67,7 +67,7 @@ const selectedStudents = applications
     const hasStudentFinal = !!app.finalReportByStudent;
     const hasCompanyFinal = !!app.finalReportByCompany;
 
-    // ✅ حالة in training فقط
+    
     return (
       app.status === "APPROVED" &&
       app.selectedByStudent &&
@@ -112,11 +112,11 @@ const selectedStudents = applications
   
   // Handle selecting a student
   const handleSelectStudent = (student) => {
-  setSelectedStudent(student); // يحتوي على _id
+  setSelectedStudent(student); 
   setReportForm(prev => ({
     ...prev,
     studentName: student.name || "",
-    studentId: student.studentId || "", // هذا يتم إدخاله يدويًا
+    studentId: student.studentId || "", 
   }));
 };
 

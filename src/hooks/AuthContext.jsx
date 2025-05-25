@@ -10,15 +10,15 @@ export const AuthProvider = ({ children }) => {
     return token && user ? { token, user: JSON.parse(user) } : null;
   });
 
-  const [loading, setLoading] = useState(true); // ✅ جديد
+  const [loading, setLoading] = useState(true); 
 
-  // ✅ Fetch user & profile on initial load
+  //  Fetch user & profile on initial load
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          setLoading(false); // ❗ لازم نوقف اللودنغ حتى لو ما في توكن
+          setLoading(false); 
           return;
         }
 
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
       } catch (err) {
         console.error("❌ Failed to fetch user profile:", err);
       } finally {
-        setLoading(false); // ✅ مهما صار، لازم نوقف اللودينغ
+        setLoading(false); 
       }
     };
 

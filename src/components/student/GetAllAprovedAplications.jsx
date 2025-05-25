@@ -719,17 +719,7 @@ const GetAllApplications = () => {
           >
             You haven't applied for any training positions yet. Browse available opportunities to get started.
           </motion.p>
-          <motion.a 
-            href="/training-posts" 
-            className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg transition-all shadow-md"
-            whileHover={{ scale: 1.05, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ y: 10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.8 }}
-          >
-            Browse Opportunities
-          </motion.a>
+         
         </motion.div>
       ) : filteredApplications.length === 0 ? (
         <motion.div 

@@ -28,7 +28,7 @@ const CompanyDashBoard = () => {
       <CompanySidebar
         auth={auth}
         logout={logout}
-        setCurrentView={setCurrentView} // ✅ هنا التغيير
+        setCurrentView={setCurrentView} 
         currentPath={currentPath}
       />
 
